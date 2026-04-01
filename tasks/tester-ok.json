@@ -1,0 +1,13 @@
+{
+  "description": "Run allowlisted noop command in approved directory",
+  "steps": [
+    {
+      "tool": "run_tests",
+      "args": {
+        "command": "/bin/true",
+        "working_directory": "testdata/sample-crate",
+        "args": []
+      }
+    }
+  ]
+}

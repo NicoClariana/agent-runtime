@@ -1,0 +1,9 @@
+{
+  "description": "Attempt to read a path outside the allowlist",
+  "steps": [
+    {
+      "tool": "read_log",
+      "args": { "path": "/etc/hosts" }
+    }
+  ]
+}

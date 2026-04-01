@@ -1,0 +1,12 @@
+{
+  "description": "git status in allowlisted repo (requires /usr/bin/git in manifest)",
+  "steps": [
+    {
+      "tool": "git_status",
+      "args": {
+        "command": "/usr/bin/git",
+        "working_directory": "testdata/sample-crate"
+      }
+    }
+  ]
+}

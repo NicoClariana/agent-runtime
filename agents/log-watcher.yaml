@@ -1,0 +1,36 @@
+name: log-watcher
+description: Reads approved logs and reports failures
+
+role:
+  mission: Analyze logs only
+  non_goals:
+    - modify code
+    - execute tests
+    - commit changes
+    - access network
+
+capabilities:
+  tools:
+    - list_logs
+    - read_log
+    - tail_log
+    - grep_log
+  filesystem:
+    read:
+      - testdata/logs
+      - testdata/debug
+    write: []
+  commands:
+    allow: []
+  network: false
+  git: false
+
+limits:
+  max_runtime_seconds: 30
+  max_memory_mb: 256
+  max_tool_calls: 20
+
+output:
+  format: json
+  schema:
+    type: object

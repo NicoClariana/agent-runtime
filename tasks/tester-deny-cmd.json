@@ -1,0 +1,13 @@
+{
+  "description": "Attempt to run a non-allowlisted binary",
+  "steps": [
+    {
+      "tool": "run_tests",
+      "args": {
+        "command": "/bin/sh",
+        "working_directory": "testdata/sample-crate",
+        "args": ["-c", "echo pwned"]
+      }
+    }
+  ]
+}

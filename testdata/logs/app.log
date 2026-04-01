@@ -1,0 +1,3 @@
+2025-04-01T10:00:00Z INFO server started
+2025-04-01T10:00:01Z ERROR connection refused to upstream
+2025-04-01T10:00:02Z WARN retrying

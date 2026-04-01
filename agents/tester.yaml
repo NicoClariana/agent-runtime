@@ -1,0 +1,34 @@
+name: tester
+description: Runs tests in an approved repo subtree; no git writes, no arbitrary shell
+
+role:
+  mission: Execute project tests and report results
+  non_goals:
+    - edit source files
+    - commit or push
+    - access network (manifest should keep network false)
+
+capabilities:
+  tools:
+    - run_tests
+    - git_status
+  filesystem:
+    read:
+      - testdata/sample-crate
+    write:
+      - testdata/sample-crate/target
+  commands:
+    allow:
+      - /usr/bin/true
+      - /bin/true
+      - /usr/bin/git
+  network: false
+  git: true
+
+limits:
+  max_runtime_seconds: 120
+  max_memory_mb: 512
+  max_tool_calls: 15
+
+output:
+  format: json

@@ -1,0 +1,17 @@
+{
+  "description": "List logs, tail, and grep for ERROR",
+  "steps": [
+    {
+      "tool": "list_logs",
+      "args": { "directory": "testdata/logs" }
+    },
+    {
+      "tool": "tail_log",
+      "args": { "path": "testdata/logs/app.log", "lines": 10 }
+    },
+    {
+      "tool": "grep_log",
+      "args": { "path": "testdata/logs/app.log", "pattern": "ERROR" }
+    }
+  ]
+}
