@@ -10,8 +10,18 @@ rust-version = "1.74"
 name = "agent-runner"
 path = "src/main.rs"
 
+[[bin]]
+name = "agent-runtime-gui"
+path = "src/bin/gui.rs"
+
 [dependencies]
 anyhow = "1.0"
+dirs = "6.0"
+eframe = { version = "0.31", default-features = false, features = [
+    "default_fonts",
+    "glow",
+] }
+rfd = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4.4", features = ["derive", "env"] }
 serde = { version = "1.0", features = ["derive"] }
