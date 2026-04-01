@@ -1,6 +1,7 @@
 //! CLI: `agent-runner launch|validate`
 
 use agent_runtime::manifest::AgentManifest;
+use agent_runtime::model::mock::MockModelClient;
 use agent_runtime::policy::CompiledPolicy;
 use agent_runtime::runner;
 use anyhow::Context;
@@ -28,6 +29,17 @@ enum Commands {
         manifest: PathBuf,
         #[arg(short, long)]
         task: PathBuf,
+        #[arg(short, long, default_value = "runs")]
+        runs_dir: PathBuf,
+    },
+    /// Run an agent session loop using the mock model backend
+    RunAgentMock {
+        #[arg(short = 'f', long)]
+        manifest: PathBuf,
+        #[arg(short, long)]
+        prompt: PathBuf,
+        #[arg(short = 'm', long)]
+        message: String,
         #[arg(short, long, default_value = "runs")]
         runs_dir: PathBuf,
     },
@@ -73,6 +85,28 @@ fn main() -> anyhow::Result<()> {
             println!("run_dir: {}", outcome.run_dir.display());
             println!("exit: {}", outcome.exit_reason);
             println!("tool_calls: {}", outcome.tool_calls_used);
+        }
+        Commands::RunAgentMock {
+            manifest,
+            prompt,
+            message,
+            runs_dir,
+        } => {
+            let model = MockModelClient;
+            let out = agent_runtime::agent::run_agent(
+                &manifest,
+                &prompt,
+                &message,
+                &runs_dir,
+                &model,
+            )?;
+            println!("run_id: {}", out.run_id);
+            println!("run_dir: {}", out.run_dir.display());
+            println!("exit: {}", out.exit_reason);
+            println!("tool_calls: {}", out.tool_calls_used);
+            if let Some(answer) = out.final_answer {
+                println!("final_answer: {answer}");
+            }
         }
     }
     Ok(())

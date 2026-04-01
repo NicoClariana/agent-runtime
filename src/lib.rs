@@ -4,7 +4,10 @@
 //! the gateway with explicit checks and audit records.
 
 pub mod audit;
+pub mod agent;
 pub mod manifest;
+pub mod model;
+pub mod paths;
 pub mod policy;
 pub mod runner;
 pub mod sandbox;

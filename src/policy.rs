@@ -3,7 +3,8 @@
 use crate::manifest::AgentManifest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::fs;
+use std::path::{Component, Path, PathBuf};
 
 /// Authoritative runtime policy. Role text does not grant capabilities.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,17 +49,57 @@ impl CompiledPolicy {
         self.path_under_any_prefix(path, &self.write_paths)
     }
 
+    /// Resolve relative paths against cwd, normalize `..`, then compare using `canonicalize`
+    /// so symlinks cannot point outside an allowed directory.
     fn path_under_any_prefix(&self, path: &Path, prefixes: &[PathBuf]) -> bool {
-        let Ok(canonical) = path.canonicalize() else {
-            return prefixes.iter().any(|p| path.starts_with(p));
+        let Ok(abs) = crate::paths::resolve_user_path(path) else {
+            return false;
         };
-        prefixes.iter().any(|prefix| {
-            if let Ok(can_prefix) = prefix.canonicalize() {
-                canonical.starts_with(&can_prefix)
-            } else {
-                canonical.starts_with(prefix)
+        if let Ok(canonical) = fs::canonicalize(&abs) {
+            return prefixes
+                .iter()
+                .any(|p| Self::canonical_under_manifest_prefix(&canonical, p));
+        }
+        let mut cur = abs.clone();
+        loop {
+            if let Ok(base) = fs::canonicalize(&cur) {
+                if !prefixes
+                    .iter()
+                    .any(|p| Self::canonical_under_manifest_prefix(&base, p))
+                {
+                    return false;
+                }
+                let Ok(rest) = abs.strip_prefix(&cur) else {
+                    return false;
+                };
+                return rest
+                    .components()
+                    .all(|c| matches!(c, Component::Normal(_)));
             }
-        })
+            if !cur.pop() {
+                return false;
+            }
+        }
+    }
+
+    fn canonical_under_manifest_prefix(canonical: &Path, manifest_prefix: &Path) -> bool {
+        let Ok(pref_abs) = crate::paths::resolve_user_path(manifest_prefix) else {
+            return false;
+        };
+        let root = fs::canonicalize(&pref_abs).unwrap_or(pref_abs);
+        if canonical == root {
+            return true;
+        }
+        canonical.starts_with(&root)
+            && canonical
+                .strip_prefix(&root)
+                .map(|rest| {
+                    !rest.as_os_str().is_empty()
+                        && rest
+                            .components()
+                            .all(|c| matches!(c, Component::Normal(_)))
+                })
+                .unwrap_or(false)
     }
 
     pub fn command_allowed(&self, cmd: &Path) -> bool {
